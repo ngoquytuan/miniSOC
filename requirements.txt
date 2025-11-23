@@ -1,0 +1,54 @@
+# Core ML and Data Processing
+numpy>=1.21.0
+pandas>=1.3.0
+scikit-learn>=1.0.0
+scipy>=1.7.0
+
+# Deep Learning (optional, for Autoencoder)
+tensorflow>=2.10.0; platform_machine != 'armv7l'  # Skip on ARM32
+# torch>=1.12.0  # Uncomment if you want PyTorch
+
+# Network and Security
+scapy>=2.4.5
+pyshark>=0.5.3
+python-nmap>=0.7.1
+
+# Alerting
+python-telegram-bot>=20.0
+requests>=2.28.0
+aiohttp>=3.8.0
+
+# Email
+python-dotenv>=0.20.0
+secure-smtplib>=0.1.1
+
+# Database
+psycopg2-binary>=2.9.0
+sqlalchemy>=1.4.0
+
+# Logging and Monitoring
+prometheus-client>=0.14.0
+python-json-logger>=2.0.0
+
+# Utilities
+pyyaml>=6.0
+python-dateutil>=2.8.0
+pytz>=2022.1
+validators>=0.20.0
+tld>=0.12.6  # Top-level domain extraction
+
+# MAC vendor lookup
+mac-vendor-lookup>=0.1.12
+
+# GeoIP
+geoip2>=4.6.0
+maxminddb>=2.2.0
+
+# Configuration
+configparser>=5.3.0
+
+# Testing (dev)
+pytest>=7.1.0
+pytest-cov>=3.0.0
+black>=22.0.0
+flake8>=4.0.0

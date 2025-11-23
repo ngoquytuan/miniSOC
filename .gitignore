@@ -1,0 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environment variables
+.env
+configs/.env
+!configs/.env.example
+
+# Logs
+logs/
+*.log
+
+# Data
+data/
+*.csv
+*.json
+!configs/**/*.json
+
+# Models
+models/*.pkl
+models/*.h5
+models/*.pt
+
+# Zeek logs
+zeek-logs/
+
+# OS
+.DS_Store
+Thumbs.db
+*~
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker
+.dockerignore
+
+# Grafana
+grafana_data/
+
+# Prometheus
+prometheus_data/
+
+# Postgres
+postgres_data/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Backup files
+*.bak
+backup/

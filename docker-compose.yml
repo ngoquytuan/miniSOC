@@ -1,0 +1,140 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: minisoc-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-minisoc_db}
+      POSTGRES_USER: ${POSTGRES_USER:-minisoc}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - minisoc-network
+
+  # Prometheus - Metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: minisoc-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+    volumes:
+      - ./configs/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - minisoc-network
+
+  # Grafana - Visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: minisoc-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_SERVER_ROOT_URL: http://192.168.1.70:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./configs/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./configs/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - minisoc-network
+
+  # Analyzer Service - ML Anomaly Detection
+  analyzer:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.analyzer
+    container_name: minisoc-analyzer
+    restart: unless-stopped
+    environment:
+      ZEEK_LOG_DIR: /zeek-logs
+      MODEL_PATH: /models/isolation_forest.pkl
+      ANOMALY_THRESHOLD: ${ANOMALY_THRESHOLD:-0.3}
+      CHECK_INTERVAL: ${ANALYZER_INTERVAL:-300}
+    volumes:
+      - /opt/zeek/logs:/zeek-logs:ro
+      - ./models:/models
+      - ./logs:/app/logs
+      - ./data:/app/data
+    env_file:
+      - configs/.env
+    depends_on:
+      - postgres
+    networks:
+      - minisoc-network
+
+  # Scanner Service - Network Device Discovery
+  scanner:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.scanner
+    container_name: minisoc-scanner
+    restart: unless-stopped
+    network_mode: host  # Cần host network để scan LAN
+    environment:
+      SUBNET: ${LAN_SUBNET:-192.168.1.0/24}
+      SCAN_INTERVAL: ${SCANNER_INTERVAL:-600}
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    env_file:
+      - configs/.env
+
+  # Alert Service - Telegram/Email notifications
+  alerting:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.alerting
+    container_name: minisoc-alerting
+    restart: unless-stopped
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
+      SMTP_SERVER: ${SMTP_SERVER:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      ALERT_EMAIL: ${ALERT_EMAIL}
+    volumes:
+      - ./logs:/app/logs
+    env_file:
+      - configs/.env
+    networks:
+      - minisoc-network
+
+  # Exporter - Export metrics to Prometheus
+  exporter:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.exporter
+    container_name: minisoc-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    volumes:
+      - ./logs:/app/logs:ro
+      - ./data:/app/data:ro
+    networks:
+      - minisoc-network
+
+networks:
+  minisoc-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  prometheus_data:
+  grafana_data:

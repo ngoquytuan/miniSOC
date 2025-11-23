@@ -1,0 +1,31 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy source code
+COPY src/analyzer /app/analyzer
+COPY src/alerting /app/alerting
+
+# Create directories
+RUN mkdir -p /app/logs /app/models /app/data
+
+# Set Python path
+ENV PYTHONPATH=/app
+
+# Run analyzer in continuous mode
+CMD ["python", "-u", "analyzer/detect_anomalies.py", \
+     "--mode", "continuous", \
+     "--model", "/models/isolation_forest.pkl", \
+     "--zeek-logs", "${ZEEK_LOG_DIR:-/zeek-logs}", \
+     "--threshold", "${ANOMALY_THRESHOLD:-0.3}", \
+     "--interval", "${CHECK_INTERVAL:-300}"]
