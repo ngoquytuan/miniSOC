@@ -1,0 +1,19 @@
+# Sample Zeek dns.log (TSV format)
+#separator \t
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	dns
+#open	2024-11-24-10-00-00
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	proto	trans_id	rtt	query	qclass	qclass_name	qtype	qtype_name	rcode	rcode_name	AA	TC	RD	RA	Z	answers	TTLs	rejected
+#types	time	string	addr	port	addr	port	enum	count	interval	string	count	string	count	string	count	string	bool	bool	bool	bool	count	vector[string]	vector[interval]	bool
+1700820001.234567	C2B3C4D5E6F7G8	192.168.1.100	54322	8.8.8.8	53	udp	12345	0.045	google.com	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	142.250.185.206	300.000000	F
+1700820005.678901	C6F7G8H9I0J1K2	192.168.1.110	58901	8.8.4.4	53	udp	23456	0.032	facebook.com	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	157.240.23.35	600.000000	F
+1700820009.012345	D0J1K2L3M4N5O6	192.168.1.100	54323	1.1.1.1	53	udp	34567	0.028	youtube.com	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	142.250.185.238	450.000000	F
+1700820013.456789	D4N5O6P7Q8R9S0	192.168.1.100	54324	8.8.8.8	53	udp	45678	0.038	example.com	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	93.184.216.34	86400.000000	F
+1700820015.567890	D6P7Q8R9S0T1U2	192.168.1.105	60001	8.8.8.8	53	udp	56789	0.041	github.com	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	140.82.121.4	60.000000	F
+1700820017.678901	D8R9S0T1U2V3W4	192.168.1.110	60002	8.8.4.4	53	udp	67890	0.035	stackoverflow.com	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	151.101.1.69,151.101.65.69	300.000000,300.000000	F
+# Suspicious domains (for testing)
+1700820020.123456	E1S0T1U2V3W4X5	192.168.1.130	60010	8.8.8.8	53	udp	78901	0.089	malicious-c2-server-xyz123.com	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	45.142.212.61	60.000000	F
+1700820021.234567	E2T1U2V3W4X5Y6	192.168.1.130	60011	8.8.8.8	53	udp	89012	0.092	random-dga-generated-domain-abc456.net	1	C_INTERNET	1	A	0	NXDOMAIN	F	F	T	T	0	-	-	F
+1700820022.345678	E3U2V3W4X5Y6Z7	192.168.1.135	60012	8.8.8.8	53	udp	90123	0.125	suspicious-phishing-site789.org	1	C_INTERNET	1	A	0	NOERROR	F	F	T	T	0	103.224.182.245	120.000000	F
